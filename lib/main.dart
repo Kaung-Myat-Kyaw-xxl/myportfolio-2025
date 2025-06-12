@@ -419,7 +419,7 @@ class _ProjectsSection extends StatelessWidget {
         'technologies': 'Flutter, Dart, Firebase (Firestore, Auth), Provider, REST API, Unit Testing',
         'image': 'https://i.imgur.com/S1vuY5O.png', // Placeholder image
         'github_link': 'https://github.com/yourusername/ecommerce_app', // Replace with your GitHub link
-        'live_link': 'https://your-live-demo.com/ecommerce', // Replace with your live demo link (if any)
+        'live_link': 'https://play.google.com/store/apps/details?id=com.mit.app092&pcampaignid=web_share',
       },
       {
         'title': 'GlobalHR Cloud App',
@@ -427,7 +427,7 @@ class _ProjectsSection extends StatelessWidget {
         'technologies': 'Flutter, Dart, BloC (Cubit), MVVM Pattern, Clean Architecture, Integration Testing',
         'image': 'https://i.imgur.com/U6kvyKl.png', // Placeholder image
         'github_link': 'https://github.com/yourusername/task_manager',
-        'live_link': '', // No live link or replace with your live demo link
+        'live_link': 'https://play.google.com/store/apps/details?id=com.globalwave.globalta&pcampaignid=web_share',
       },
       {
         'title': 'SDLite (Distribution App)',
@@ -435,7 +435,7 @@ class _ProjectsSection extends StatelessWidget {
         'technologies': 'Flutter, Dart, Provider ',
         'image': 'https://i.imgur.com/cQmRJVO.png', // Placeholder image
         'github_link': 'https://github.com/yourusername/flutter_animations_lib',
-        'live_link': 'https://your-live-demo.com/animations',
+        'live_link': 'https://play.google.com/store/apps/details?id=com.mit.sdlitemit&pcampaignid=web_share',
       },
       {
         'title': 'Max Energy Galaxy Club',
@@ -443,7 +443,7 @@ class _ProjectsSection extends StatelessWidget {
         'technologies': 'Xamarin(MAUI), C#, MVVM Pattern, Integration Testing',
         'image': 'https://i.imgur.com/LC2K7cs.png', // Placeholder image
         'github_link': 'https://github.com/yourusername/task_manager',
-        'live_link': '', // No live link or replace with your live demo link
+        'live_link': 'https://play.google.com/store/apps/details?id=com.maxenergy.galaxyclub&pcampaignid=web_share',
       },
     ];
 
@@ -531,7 +531,7 @@ class _ProjectCard extends StatelessWidget {
                             color: Theme.of(context).textTheme.bodySmall?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white60),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 40),
                         _buildProjectButtons(context),
                       ],
                     ),
@@ -617,18 +617,19 @@ class _ProjectCard extends StatelessWidget {
       runSpacing: 12.0,
       children: [
         ElevatedButton.icon(
-          onPressed: githubLink.isNotEmpty
-              ? () {
-            // TODO: Implement URL launching (add url_launcher package).
-            // For now, print to console.
-            log('Opening GitHub: $githubLink');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Would open GitHub: $githubLink')),
-            );
+          onPressed: liveLink.isNotEmpty ? () async {
+
+            final Uri url = Uri.parse(liveLink);
+            if (!await launchUrl(url)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not launch $liveLink')),
+              );
+            }
+            log('Opening Live Link: $liveLink');
           }
               : null, // Disable button if link is empty.
-          icon: const Icon(Icons.code),
-          label: const Text('View Code'),
+          icon: const Icon(Icons.link),
+          label: const Text('View Live'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,
@@ -636,24 +637,24 @@ class _ProjectCard extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
-        if (liveLink.isNotEmpty)
-          OutlinedButton.icon(
-            onPressed: () {
-              // TODO: Implement URL launching.
-              log('Opening Live Demo: $liveLink');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Would open Live Demo: $liveLink')),
-              );
-            },
-            icon: const Icon(Icons.link),
-            label: const Text('Live Demo'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Theme.of(context).primaryColor,
-              side: BorderSide(color: Theme.of(context).primaryColor),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
+        // if (liveLink.isNotEmpty)
+        //   OutlinedButton.icon(
+        //     onPressed: () {
+        //       // TODO: Implement URL launching.
+        //       log('Opening Live Demo: $liveLink');
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(content: Text('Would open Live Demo: $liveLink')),
+        //       );
+        //     },
+        //     icon: const Icon(Icons.link),
+        //     label: const Text('Live Demo'),
+        //     style: OutlinedButton.styleFrom(
+        //       foregroundColor: Theme.of(context).primaryColor,
+        //       side: BorderSide(color: Theme.of(context).primaryColor),
+        //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        //     ),
+        //   ),
       ],
     );
   }
@@ -709,9 +710,6 @@ class _ContactSection extends StatelessWidget {
               SnackBar(content: Text('Could not launch $url')),
             );
           }
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text('Would open: $url')),
-          // );
         }
             : null,
         borderRadius: BorderRadius.circular(8),
