@@ -10,10 +10,14 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  // MyApp is the root widget of your application.
-  // It sets up the MaterialApp, which provides basic app functionality like navigation and theming.
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +45,41 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PortfolioPage extends StatelessWidget {
-  // PortfolioPage contains the main structure and sections of your portfolio.
+class PortfolioPage extends StatefulWidget {
   const PortfolioPage({super.key});
+
+  @override
+  State<PortfolioPage> createState() => _PortfolioPageState();
+}
+
+class _PortfolioPageState extends State<PortfolioPage> {
+  final GlobalKey aboutKey = GlobalKey();
+  final GlobalKey skillsKey = GlobalKey();
+  final GlobalKey projectsKey = GlobalKey();
+  final GlobalKey contactKey = GlobalKey();
+
+  @override
+  void initState(){
+    super.initState();
+
+  }
+
+  void _scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     // Get the screen size for responsive design.
     final Size screenSize = MediaQuery.of(context).size;
+
 
     return Scaffold(
       // The main background color for the Scaffold.
@@ -68,10 +99,10 @@ class PortfolioPage extends StatelessWidget {
         actions: [
           // Navigation links in the app bar for larger screens.
           if (screenSize.width > 600) ...[
-            _AppBarButton(text: 'About', onPressed: () {/* Scroll to About */}, context: context),
-            _AppBarButton(text: 'Skills', onPressed: () {/* Scroll to Skills */}, context: context),
-            _AppBarButton(text: 'Projects', onPressed: () {/* Scroll to Projects */}, context: context),
-            _AppBarButton(text: 'Contact', onPressed: () {/* Scroll to Contact */}, context: context),
+            _AppBarButton(text: 'About', onPressed: () { _scrollToSection(aboutKey); }, context: context),
+            _AppBarButton(text: 'Skills', onPressed: () { _scrollToSection(skillsKey); }, context: context),
+            _AppBarButton(text: 'Projects', onPressed: () { _scrollToSection(projectsKey); }, context: context),
+            _AppBarButton(text: 'Contact', onPressed: () { _scrollToSection(contactKey); }, context: context),
           ],
           // Add a theme toggle button.
           // IconButton(
@@ -103,22 +134,34 @@ class PortfolioPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left).
               children: [
                 // About Me Section
-                _buildSectionTitle(context, 'About Me'),
+                Container(
+                  key: aboutKey,
+                    child: _buildSectionTitle(context, 'About Me')
+                ),
                 _AboutMeSection(),
                 const SizedBox(height: 40),
 
                 // Skills Section
-                _buildSectionTitle(context, 'Skills'),
+                Container(
+                  key: skillsKey,
+                    child: _buildSectionTitle(context, 'Skills')
+                ),
                 _SkillsSection(),
                 const SizedBox(height: 40),
 
                 // Projects Section
-                _buildSectionTitle(context, 'Projects'),
+                Container(
+                  key: projectsKey,
+                    child: _buildSectionTitle(context, 'Projects'),
+                ),
                 _ProjectsSection(),
                 const SizedBox(height: 40),
 
                 // Contact Section
-                _buildSectionTitle(context, 'Contact'),
+                Container(
+                  key: contactKey,
+                    child: _buildSectionTitle(context, 'Contact'),
+                ),
                 _ContactSection(),
                 const SizedBox(height: 40),
               ],
@@ -143,6 +186,7 @@ class PortfolioPage extends StatelessWidget {
       ),
     );
   }
+
 }
 
 // A simple button for the App Bar.
