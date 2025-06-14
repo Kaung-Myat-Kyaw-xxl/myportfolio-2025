@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:kmk_portfolio/src/shared/webColors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() {
@@ -29,7 +30,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey, // A good primary color for a professional look.
         visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts UI density based on platform.
-        fontFamily: 'Inter', // Using 'Inter' for a modern look (ensure you add it to pubspec.yaml).
+        //fontFamily: 'BebasNeue', // Using 'Inter' for a modern look (ensure you add it to pubspec.yaml).
       ),
       // Define the dark theme.
       darkTheme: ThemeData(
@@ -37,8 +38,9 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blueGrey,
         hintColor: Colors.tealAccent, // A contrasting accent color for dark theme.
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        fontFamily: 'Inter',
+        //fontFamily: 'BebasNeue',
       ),
+      themeMode: ThemeMode.system,
       // Set the initial route to the PortfolioPage.
       home: const PortfolioPage(),
     );
@@ -83,19 +85,21 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
     return Scaffold(
       // The main background color for the Scaffold.
-      backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : Colors.grey[900],
+      backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : WebColors.scaffoldDarkBackgroundColor
+      ,
       // AppBar for the portfolio, appearing at the top.
       appBar: AppBar(
         title: Text(
           'Kaung Myat Kyaw', // Replace with your actual name
           style: TextStyle(
-            color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : Colors.white),
-            fontWeight: FontWeight.bold,
+            fontFamily: 'BebasNeue',
+            fontSize: 32,
+            color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : WebColors.primaryDarkTextColor),
           ),
         ),
         centerTitle: false, // Align title to the left.
         elevation: 0, // No shadow for a flat, modern look.
-        backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.grey[850],
+        backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : WebColors.scaffoldDarkBackgroundColor,
         actions: [
           // Navigation links in the app bar for larger screens.
           if (screenSize.width > 600) ...[
@@ -133,9 +137,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left).
               children: [
+                // Intro Seciton
+                _IntroSection(),
+
                 // About Me Section
                 Container(
-                  key: aboutKey,
+                    key: aboutKey,
                     child: _buildSectionTitle(context, 'About Me')
                 ),
                 _AboutMeSection(),
@@ -143,7 +150,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
                 // Skills Section
                 Container(
-                  key: skillsKey,
+                    key: skillsKey,
                     child: _buildSectionTitle(context, 'Skills')
                 ),
                 _SkillsSection(),
@@ -152,7 +159,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 // Projects Section
                 Container(
                   key: projectsKey,
-                    child: _buildSectionTitle(context, 'Projects'),
+                  child: _buildSectionTitle(context, 'Projects'),
                 ),
                 _ProjectsSection(),
                 const SizedBox(height: 40),
@@ -160,7 +167,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 // Contact Section
                 Container(
                   key: contactKey,
-                    child: _buildSectionTitle(context, 'Contact'),
+                  child: _buildSectionTitle(context, 'Contact'),
                 ),
                 _ContactSection(),
                 const SizedBox(height: 40),
@@ -208,9 +215,9 @@ class _AppBarButton extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : Colors.white),
+          fontFamily: 'Inter',
+          color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : WebColors.primaryDarkTextColor),
           fontSize: 16,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -218,6 +225,159 @@ class _AppBarButton extends StatelessWidget {
 }
 
 // --- Portfolio Sections ---
+
+class _IntroSection extends StatelessWidget {
+  const _IntroSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Adjust layout based on screen width.
+        if (constraints.maxWidth > 700) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: _buildIntroContent(context)),
+              const SizedBox(width: 80),
+              // Placeholder for your profile picture.
+              Image.network(
+                'https://i.imgur.com/nMWsjPs.jpeg',
+                width: 600,
+                height: 700,
+                fit: BoxFit.cover,
+              )
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              // Placeholder for your profile picture.
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image.network(
+                  'https://i.imgur.com/H5h1sR8.jpeg', // Replace with your image URL
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Icon(Icons.person, size: 60, color: Colors.grey[600]),
+                      ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildIntroContent(context),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildIntroContent(BuildContext context){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'HI, I AM',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.headlineSmall?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[700] : Colors.blueGrey[200]),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'KAUNG MYAT KYAW.',
+          style: TextStyle(
+            fontSize: 18,
+            height: 1.5,
+            color: Theme.of(context).textTheme.bodyLarge?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : Colors.white70),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Add more details like "What I do" or "My Philosophy" here.
+        Text(
+          'A Yangon based mobile app developer passionate about building accessible and user friendly mobile app.',
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.5,
+            color: Theme.of(context).textTheme.bodyMedium?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white60),
+          ),
+        ),
+        _buildIntroButtons(context),
+      ],
+    );
+  }
+
+  Widget _buildIntroButtons(BuildContext context){
+    return Wrap(
+      spacing: 12.0,
+      runSpacing: 12.0,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () async {
+            log('Contact clicking: ');
+          },// Disable button if link is empty.
+          icon: const Icon(Icons.quick_contacts_mail_rounded),
+          label: const Text('CONTACT ME'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: WebColors.primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            log('Icon tapped');
+          },
+          child: ClipOval(
+            child: Container(
+              width: 54,
+              height: 54,
+              color: WebColors.hoverColor,
+              alignment: Alignment.center,
+              child: Image.asset(
+                'assets/logos/Vector.png',
+                width: 28, // Adjust size as needed
+                height: 28,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            log('Icon tapped');
+          },
+          child: ClipOval(
+            child: Container(
+              width: 54,
+              height: 54,
+              color: WebColors.hoverColor,
+              alignment: Alignment.center,
+              child: Image.asset(
+                'assets/logos/bxl-github.png',
+                width: 28, // Adjust size as needed
+                height: 28,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
 
 class _AboutMeSection extends StatelessWidget {
   const _AboutMeSection();
@@ -622,7 +782,7 @@ class _ProjectCard extends StatelessWidget {
             final Uri url = Uri.parse(liveLink);
             if (!await launchUrl(url)) {
               ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Could not launch $liveLink')),
+                SnackBar(content: Text('Could not launch $liveLink')),
               );
             }
             log('Opening Live Link: $liveLink');
@@ -637,7 +797,6 @@ class _ProjectCard extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
-
         // if (liveLink.isNotEmpty)
         //   OutlinedButton.icon(
         //     onPressed: () {
@@ -706,7 +865,7 @@ class _ContactSection extends StatelessWidget {
           final Uri _url = Uri.parse(url);
           log('Opening URL: $_url');
           if (!await launchUrl(_url)) {
-          //throw Exception('Could not launch $_url');
+            //throw Exception('Could not launch $_url');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Could not launch $url')),
             );
@@ -719,7 +878,7 @@ class _ContactSection extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min, // Keep row compact.
             children: [
-              Icon(icon, size: 28, color: Colors.grey),
+              Icon(icon, size: 28, color: Theme.of(context).primaryColor),
               const SizedBox(width: 15),
               Text(
                 text,
