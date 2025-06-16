@@ -81,12 +81,26 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Widget build(BuildContext context) {
     // Get the screen size for responsive design.
     final Size screenSize = MediaQuery.of(context).size;
+    // final double screenWidth = screenSize.width;
+    //
+    // double horizontalPadding = 16;
+    // double verticalPadding = 16;
+    //
+    // if (screenWidth >= 1200) {
+    //   horizontalPadding = 64; // Large screen
+    //   verticalPadding = 32;
+    // } else if (screenWidth >= 768) {
+    //   horizontalPadding = 32; // Tablet
+    //   verticalPadding = 24;
+    // } else {
+    //   horizontalPadding = 16; // Mobile
+    //   verticalPadding = 16;
+    // }
 
 
     return Scaffold(
       // The main background color for the Scaffold.
-      backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : WebColors.scaffoldDarkBackgroundColor
-      ,
+      backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.grey[100] : WebColors.scaffoldDarkBackgroundColor,
       // AppBar for the portfolio, appearing at the top.
       appBar: AppBar(
         title: Text(
@@ -227,7 +241,9 @@ class _AppBarButton extends StatelessWidget {
 // --- Portfolio Sections ---
 
 class _IntroSection extends StatelessWidget {
-  const _IntroSection({super.key});
+  _IntroSection({super.key});
+
+  final ValueNotifier<bool> _hovering = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -239,41 +255,48 @@ class _IntroSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(child: _buildIntroContent(context)),
-              const SizedBox(width: 80),
+              const SizedBox(width: 60),
               // Placeholder for your profile picture.
-              Image.network(
-                'https://i.imgur.com/nMWsjPs.jpeg',
-                width: 600,
-                height: 700,
-                fit: BoxFit.cover,
-              )
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  'https://i.imgur.com/nMWsjPs.jpeg',
+                  width: 500,
+                  height: 600,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Container(
+                        height: 200,
+                        width: 200,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.broken_image, size: 60, color: Colors.grey[600]),
+                      ),
+                ),
+              ),
             ],
           );
         } else {
           return Column(
             children: [
+              _buildIntroContent(context),
+              const SizedBox(height: 64),
               // Placeholder for your profile picture.
               ClipRRect(
-                borderRadius: BorderRadius.circular(100),
+                borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  'https://i.imgur.com/H5h1sR8.jpeg', // Replace with your image URL
-                  width: 120,
-                  height: 120,
+                  'https://i.imgur.com/nMWsjPs.jpeg',
+                  width: double.infinity,
+                  height: 400,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                       Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Icon(Icons.person, size: 60, color: Colors.grey[600]),
+                        height: 200,
+                        width: 200,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.broken_image, size: 60, color: Colors.grey[600]),
                       ),
                 ),
               ),
-              const SizedBox(height: 16),
-              _buildIntroContent(context),
             ],
           );
         }
@@ -288,21 +311,23 @@ class _IntroSection extends StatelessWidget {
         Text(
           'HI, I AM',
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).textTheme.headlineSmall?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[700] : Colors.blueGrey[200]),
+            fontFamily: 'BebasNeue',
+            fontSize: 101,
+            height: 0.9, // 90%
+            color: Theme.of(context).textTheme.headlineSmall?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[700] : WebColors.titleDarkColor),
           ),
         ),
-        const SizedBox(height: 10),
+        //const SizedBox(height: 10),
         Text(
           'KAUNG MYAT KYAW.',
           style: TextStyle(
-            fontSize: 18,
-            height: 1.5,
-            color: Theme.of(context).textTheme.bodyLarge?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : Colors.white70),
+            fontFamily: 'BebasNeue',
+            fontSize: 101,
+            height: 0.9,
+            color: Theme.of(context).textTheme.bodyLarge?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : WebColors.titleDarkColor),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         // Add more details like "What I do" or "My Philosophy" here.
         Text(
           'A Yangon based mobile app developer passionate about building accessible and user friendly mobile app.',
@@ -312,6 +337,7 @@ class _IntroSection extends StatelessWidget {
             color: Theme.of(context).textTheme.bodyMedium?.color ?? (Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white60),
           ),
         ),
+        const SizedBox(height: 40),
         _buildIntroButtons(context),
       ],
     );
@@ -319,22 +345,11 @@ class _IntroSection extends StatelessWidget {
 
   Widget _buildIntroButtons(BuildContext context){
     return Wrap(
-      spacing: 12.0,
+      alignment: WrapAlignment.center,
+      spacing: 16.0,  //horizontally
       runSpacing: 12.0,
       children: [
-        ElevatedButton.icon(
-          onPressed: () async {
-            log('Contact clicking: ');
-          },// Disable button if link is empty.
-          icon: const Icon(Icons.quick_contacts_mail_rounded),
-          label: const Text('CONTACT ME'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: WebColors.primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        ),
+        _buildContactButton(context),
         GestureDetector(
           onTap: () {
             log('Icon tapped');
@@ -347,8 +362,8 @@ class _IntroSection extends StatelessWidget {
               alignment: Alignment.center,
               child: Image.asset(
                 'assets/logos/Vector.png',
-                width: 28, // Adjust size as needed
-                height: 28,
+                width: 25, // Adjust size as needed
+                height: 25,
                 fit: BoxFit.contain,
               ),
             ),
@@ -376,8 +391,114 @@ class _IntroSection extends StatelessWidget {
       ],
     );
   }
-}
 
+  Widget _buildContactButton(BuildContext context){
+    return MouseRegion(
+      onEnter: (_) => _hovering.value = true,
+      onExit: (_) => _hovering.value = false,
+      cursor: SystemMouseCursors.click,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _hovering,
+        builder: (context, isHovered, _) {
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(100),
+              onTap: (){},
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                constraints: const BoxConstraints(minHeight: 54, minWidth: 187),
+                padding: const EdgeInsets.only(left: 16, right: 5),
+                decoration: BoxDecoration(
+                  color: isHovered
+                      ? WebColors.primaryHoverColor
+                      : WebColors.primaryColor,
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: isHovered
+                      ? [
+                    BoxShadow(
+                      color: Color.fromRGBO(158, 158, 158, 0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 8),
+                    ),
+                  ]
+                      : [],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'CONTACT ME',
+                      style: const TextStyle(
+                        fontFamily: 'ManropeBold',
+                        fontSize: 16,
+                        color: Color(0xFF0A0A0A),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      child: const Icon(
+                        Icons.north_east,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    // return Container(
+    //   constraints: BoxConstraints(minHeight: 54, minWidth: 187),
+    //   padding: const EdgeInsets.only(left: 16, right: 5),
+    //   decoration: BoxDecoration(
+    //     color: WebColors.primaryColor, // Light green
+    //     borderRadius: BorderRadius.circular(100), // Capsule shape
+    //   ),
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //     mainAxisSize: MainAxisSize.min,
+    //     children: [
+    //       Text(
+    //         'CONTACT ME',
+    //         style: TextStyle(
+    //           fontFamily: 'ManropeBold', // Make sure you have this font added
+    //           fontSize: 16,
+    //           color: Color(0xFF0A0A0A),
+    //         ),
+    //       ),
+    //       //const SizedBox(width: 12),
+    //       Padding(
+    //         padding: const EdgeInsets.only(right: 0), // Small right spacing only for circle
+    //         child: Container(
+    //           width: 46,
+    //           height: 46,
+    //           decoration: const BoxDecoration(
+    //             shape: BoxShape.circle,
+    //             color: Colors.black,
+    //           ),
+    //           child: const Icon(
+    //             Icons.north_east,
+    //             color: Colors.white,
+    //             size: 24,
+    //           ),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+  }
+}
 
 class _AboutMeSection extends StatelessWidget {
   const _AboutMeSection();

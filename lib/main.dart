@@ -310,7 +310,7 @@ class _AboutMeSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'I am a Senior mobile Developer with 5+ years of experience crafting high-performance, scalable, and intuitive mobile and web applications. My expertise lies in designing robust architectures, leading development teams, and optimizing app performance across various platforms. I am passionate about creating clean, maintainable code and delivering exceptional user experiences.',
+          'I\'m a cross-platform mobile app developer with over 5 years of experience, starting with Xamarin (C#) and currently focused on Flutter. I’ve built and shipped production-ready apps using clean architecture, Firebase integration, RESTful APIs, QR code scanning, and advanced state management (BLoC, Provider).',
           style: TextStyle(
             fontSize: 18,
             height: 1.5,
@@ -320,7 +320,7 @@ class _AboutMeSection extends StatelessWidget {
         const SizedBox(height: 16),
         // Add more details like "What I do" or "My Philosophy" here.
         Text(
-          'My core focus includes state management (BLoC, Provider, GetX and RiverPod), clean architecture, testing, and integrating with diverse backend services. I thrive in collaborative environments, mentoring junior developers, and pushing the boundaries of what\'s possible with Flutter.',
+          'I’m passionate about performance optimization, responsive UI/UX, and maintainable code. With experience publishing apps on both Android and iOS, I’m eager to take on senior-level roles where I can contribute to technical decision-making, mentor junior developers, and build scalable, user-centric products.',
           style: TextStyle(
             fontSize: 16,
             height: 1.5,
