@@ -20,6 +20,15 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="KMK portfolio project.">
 
+  <!-- ✅ Add this line to change browser's loading bar color -->
+  <meta name="theme-color" content="#D3E97A">
+
+  <!-- Load Lottie Web -->
+  <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+
+  <!-- Optional: Load custom font (e.g., Manrope or Arial) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -33,6 +42,26 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <!-- Custom Lottie loading screen -->
+  <div id="loading" style="text-align: center; padding-top: 80px;">
+    <div id="lottie-container" style="width: 120px; height: 120px; margin: 0 auto;"></div>
+    <p style="color: #0D1B2A; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 400; margin-top: 16px;">
+      Loading KmK Portfolio...
+    </p>
+  </div>
+
+  <script>
+    // Load and play your Lottie animation
+    lottie.loadAnimation({
+      container: document.getElementById('lottie-container'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'assets/animations/lottie_loading.json' // 👈 Update to your Lottie JSON path
+    });
+  </script>
+
+  <!-- Load Flutter app -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

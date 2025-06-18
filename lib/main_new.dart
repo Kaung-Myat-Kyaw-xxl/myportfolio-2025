@@ -809,7 +809,7 @@ class _ProjectsSection extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                              'Here are some of the selected projects that showcase my passion for front-end development.', // Subtitle
+                              'Here are some of the selected projects that showcase my passion for cross platform mobile development.', // Subtitle
                               style: TextStyle(
                                   fontFamily: 'Manrope',
                                   fontSize: constraints.maxWidth > 700 ? 18 : 16,
