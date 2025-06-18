@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
@@ -121,21 +122,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
             _AppBarButton(text: 'About', onPressed: () { _scrollToSection(aboutKey); }, context: context),
             _AppBarButton(text: 'Contact', onPressed: () { _scrollToSection(contactKey); }, context: context),
           ],
-          // Add a theme toggle button.
-          // IconButton(
-          //   icon: Icon(
-          //     Theme.of(context).brightness == Brightness.light ? Icons.dark_mode : Icons.light_mode,
-          //     color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : Colors.white),
-          //   ),
-          //   onPressed: () {
-          //     // TODO: Implement theme toggling logic (e.g., using Provider or Riverpod for state management).
-          //     // For now, this is a placeholder. You'd typically wrap MyApp in a StatefulWidget
-          //     // or use a state management solution to change the theme dynamically.
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       const SnackBar(content: Text('Theme toggle functionality to be implemented!')),
-          //     );
-          //   },
-          // ),
           const SizedBox(width: 20),
         ],
       ),
@@ -154,45 +140,29 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left).
                 children: [
                   // Intro Seciton
-                  _IntroSection(),
-                  Divider(
-                    color: Color(0xFF484848), // Line color
-                    thickness: 1,       // Line thickness
-                    height: 80,         // Space above and below the line
-                  ),
+                  _IntroSection(onContactPressed: (){ _scrollToSection(contactKey); }),
+                  _buildDivider(context),
 
                   // Projects Section
                   Container(
                     key: projectsKey,
                     child: _ProjectsSection(),
                   ),
-                  Divider(
-                    color: Color(0xFF484848), // Line color
-                    thickness: 1,       // Line thickness
-                    height: 80,         // Space above and below the line
-                  ),
+                  _buildDivider(context),
 
                   // Skills Section
                   Container(
                     key: skillsKey,
                     child: _SkillsSection(),
                   ),
-                  Divider(
-                    color: Color(0xFF484848), // Line color
-                    thickness: 1,       // Line thickness
-                    height: 80,         // Space above and below the line
-                  ),
+                  _buildDivider(context),
 
                   // About Me Section
                   Container(
                       key: aboutKey,
                       child: _AboutMeSection(),
                   ),
-                  Divider(
-                    color: Color(0xFF484848), // Line color
-                    thickness: 1,       // Line thickness
-                    height: 80,         // Space above and below the line
-                  ),
+                  _buildDivider(context),
 
                   // Contact Section
                   Container(
@@ -218,6 +188,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
     );
   }
 
+  Widget _buildDivider(BuildContext context){
+    return Divider(
+      color: Color(0xFF484848),
+      thickness: 1,
+      height: 80,
+    );
+  }
+
 }
 
 // A simple button for the App Bar.
@@ -240,7 +218,9 @@ class _AppBarButton extends StatelessWidget {
         text,
         style: TextStyle(
           fontFamily: 'Inter',
-          color: Theme.of(context).appBarTheme.foregroundColor ?? (Theme.of(context).brightness == Brightness.light ? Colors.black87 : WebColors.primaryDarkTextColor),
+          fontWeight: FontWeight.w500,
+          height: 1.5,
+          color: Theme.of(context).brightness == Brightness.light ? Colors.black87 : WebColors.primaryDarkTextColor,
           fontSize: 16,
         ),
       ),
@@ -251,7 +231,8 @@ class _AppBarButton extends StatelessWidget {
 // --- Portfolio Sections ---
 
 class _IntroSection extends StatelessWidget {
-  _IntroSection({super.key});
+  _IntroSection({super.key, required this.onContactPressed});
+  final VoidCallback onContactPressed;
 
   final ValueNotifier<bool> _hovering = ValueNotifier(false);
 
@@ -383,26 +364,70 @@ class _IntroSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 40),
-        _buildIntroButtons(context),
+        _buildIntroButtons(context, constraints),
+        if (kIsWeb)   // Web only button
+        const SizedBox(height: 40),
+        if (kIsWeb)  // Web only button
+          _buildPDFViewButton(context),
       ],
     );
   }
 
-  Widget _buildIntroButtons(BuildContext context){
+  Widget _buildPDFViewButton(BuildContext context){
+    return ElevatedButton.icon(
+      icon: Icon(Icons.picture_as_pdf, color: Colors.white), // white icon
+      label: Text(
+        "View Resume",
+        style: TextStyle(
+          fontFamily: 'ManropeBold',
+          color: Colors.white
+        ), // white text
+      ),
+      onPressed: () async {
+        final url = Uri.parse('assets/resume/resume_2025.pdf');
+        if (!await launchUrl(url)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not launch $url')),
+          );
+        }
+        log('Opening Resume Link: $url');
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: WebColors.scaffoldDarkBackgroundColor, // transparent background
+        foregroundColor: WebColors.primaryColor, // ripple effect
+        shadowColor: Colors.grey, // remove shadow
+        side: BorderSide(color: WebColors.primaryColor, width: 1.5),
+        minimumSize: Size(187, 58),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(27),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  Widget _buildIntroButtons(BuildContext context, BoxConstraints constraints){
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 16.0,  //horizontally
       runSpacing: 12.0,
       children: [
-        _buildContactButton(context),
+        _buildContactButton(context, constraints),
         GestureDetector(
-          onTap: () {
-            log('Icon tapped');
+          onTap: () async {
+            final linkedInUrl = "https://www.linkedin.com/in/kaung-myat-kyaw-1b04641b5";
+            final Uri url = Uri.parse(linkedInUrl);
+            if (!await launchUrl(url)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Could not launch $linkedInUrl')),
+              );
+            }
+            log('Opening Linkedin Link: $linkedInUrl');
           },
           child: ClipOval(
             child: Container(
-              width: 54,
-              height: 54,
+              width: constraints.maxWidth > 700 ? 54 : 48,
+              height: constraints.maxWidth > 700 ? 54 : 48,
               color: WebColors.hoverColor,
               alignment: Alignment.center,
               child: Image.asset(
@@ -415,13 +440,20 @@ class _IntroSection extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () {
-            log('Icon tapped');
+          onTap: () async {
+            final gitHubUrl = "https://github.com/Kaung-Myat-Kyaw-xxl";
+            final Uri url = Uri.parse(gitHubUrl);
+            if (!await launchUrl(url)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Could not launch $gitHubUrl')),
+              );
+            }
+            log('Opening GitHub Link: $gitHubUrl');
           },
           child: ClipOval(
             child: Container(
-              width: 54,
-              height: 54,
+              width: constraints.maxWidth > 700 ? 54 : 48,
+              height: constraints.maxWidth > 700 ? 54 : 48,
               color: WebColors.hoverColor,
               alignment: Alignment.center,
               child: Image.asset(
@@ -437,115 +469,72 @@ class _IntroSection extends StatelessWidget {
     );
   }
 
-  Widget _buildContactButton(BuildContext context){
-    return LayoutBuilder(
-      builder: (context, constraints){
-        return MouseRegion(
-          onEnter: (_) => _hovering.value = true,
-          onExit: (_) => _hovering.value = false,
-          cursor: SystemMouseCursors.click,
-          child: ValueListenableBuilder<bool>(
-            valueListenable: _hovering,
-            builder: (context, isHovered, _) {
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
+  Widget _buildContactButton(BuildContext context, BoxConstraints constraints){
+    return MouseRegion(
+      onEnter: (_) => _hovering.value = true,
+      onExit: (_) => _hovering.value = false,
+      cursor: SystemMouseCursors.click,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _hovering,
+        builder: (context, isHovered, _) {
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(100),
+              onTap: onContactPressed,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                constraints: BoxConstraints(minHeight: constraints.maxWidth > 700 ? 54 : 48, minWidth: constraints.maxWidth > 700 ? 187 : 164),
+                padding: const EdgeInsets.only(left: 16, right: 5),
+                decoration: BoxDecoration(
+                  color: isHovered
+                      ? WebColors.primaryHoverColor
+                      : WebColors.primaryColor,
                   borderRadius: BorderRadius.circular(100),
-                  onTap: (){},
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    constraints: BoxConstraints(minHeight: constraints.maxWidth > 700 ? 54 : 48, minWidth: constraints.maxWidth > 700 ? 187 : 164),
-                    padding: const EdgeInsets.only(left: 16, right: 5),
-                    decoration: BoxDecoration(
-                      color: isHovered
-                          ? WebColors.primaryHoverColor
-                          : WebColors.primaryColor,
-                      borderRadius: BorderRadius.circular(100),
-                      boxShadow: isHovered
-                          ? [
-                        BoxShadow(
-                          color: Color.fromRGBO(158, 158, 158, 0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 8),
-                        ),
-                      ]
-                          : [],
+                  boxShadow: isHovered
+                      ? [
+                    BoxShadow(
+                      color: Color.fromRGBO(158, 158, 158, 0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 8),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'CONTACT ME',
-                          style: TextStyle(
-                            fontFamily: 'ManropeBold',
-                            fontSize: constraints.maxWidth > 700 ? 16 : 14,
-                            color: Color(0xFF0A0A0A),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          width: constraints.maxWidth > 700 ? 46 : 40,
-                          height: constraints.maxWidth > 700 ? 46 : 40,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black,
-                          ),
-                          child: Icon(
-                            Icons.north_east,
-                            color: Colors.white,
-                            size: constraints.maxWidth > 700 ? 24 : 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ]
+                      : [],
                 ),
-              );
-            },
-          ),
-        );
-      },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'CONTACT ME',
+                      style: TextStyle(
+                        fontFamily: 'ManropeBold',
+                        fontSize: constraints.maxWidth > 700 ? 16 : 14,
+                        color: Color(0xFF0A0A0A),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: constraints.maxWidth > 700 ? 46 : 40,
+                      height: constraints.maxWidth > 700 ? 46 : 40,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      child: Icon(
+                        Icons.north_east,
+                        color: Colors.white,
+                        size: constraints.maxWidth > 700 ? 24 : 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
-    // return Container(
-    //   constraints: BoxConstraints(minHeight: 54, minWidth: 187),
-    //   padding: const EdgeInsets.only(left: 16, right: 5),
-    //   decoration: BoxDecoration(
-    //     color: WebColors.primaryColor, // Light green
-    //     borderRadius: BorderRadius.circular(100), // Capsule shape
-    //   ),
-    //   child: Row(
-    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //     mainAxisSize: MainAxisSize.min,
-    //     children: [
-    //       Text(
-    //         'CONTACT ME',
-    //         style: TextStyle(
-    //           fontFamily: 'ManropeBold', // Make sure you have this font added
-    //           fontSize: 16,
-    //           color: Color(0xFF0A0A0A),
-    //         ),
-    //       ),
-    //       //const SizedBox(width: 12),
-    //       Padding(
-    //         padding: const EdgeInsets.only(right: 0), // Small right spacing only for circle
-    //         child: Container(
-    //           width: 46,
-    //           height: 46,
-    //           decoration: const BoxDecoration(
-    //             shape: BoxShape.circle,
-    //             color: Colors.black,
-    //           ),
-    //           child: const Icon(
-    //             Icons.north_east,
-    //             color: Colors.white,
-    //             size: 24,
-    //           ),
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 }
 
@@ -1497,19 +1486,19 @@ class _ContactFormState extends State<ContactFormSection> {
     final List<Map<String, String>> iconItems = [
       {
         'icon': 'assets/logos/bxl-github.png',
-        'url': 'https://github.com/yourname',
+        'url': 'https://github.com/Kaung-Myat-Kyaw-xxl',
       },
       {
         'icon': 'assets/logos/bxl-linkedin.png',
-        'url': 'https://linkedin.com/in/yourname',
+        'url': 'https://www.twitter.com/',
       },
       {
         'icon': 'assets/logos/bxl-instagram.png',
-        'url': 'https://twitter.com/yourname',
+        'url': 'https://www.instagram.com/kaung_myat_xxl/',
       },
       {
         'icon': 'assets/logos/Vector.png',
-        'url': 'https://yourwebsite.com',
+        'url': 'https://www.linkedin.com/in/kaung-myat-kyaw-1b04641b5',
       },
     ];
 
@@ -1520,28 +1509,15 @@ class _ContactFormState extends State<ContactFormSection> {
         final icon = iconItems[index]['icon']!;
         final url = iconItems[index]['url']!;
 
-        return GestureDetector(
-          onTap: () async {
+        return IconButton(
+          onPressed: () async {
             if (await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url));
+            await launchUrl(Uri.parse(url));
             } else {
-              log('Could not launch $url');
+            log('Could not launch $url');
             }
           },
-          child: ClipOval(
-            child: Container(
-              width: 54,
-              height: 54,
-              color: WebColors.hoverColor,
-              alignment: Alignment.center,
-              child: Image.asset(
-                icon,
-                width: 32,
-                height: 32,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
+          icon: Image.asset(icon, height: 32, width: 32,),
         );
       }),
     );
@@ -1563,54 +1539,7 @@ class FooterSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Contact Info or Quick Links
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 32,
-            runSpacing: 8,
-            children: [
-              TextButton(
-                onPressed: () {},
-                child: const Text('About'),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Projects'),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Contact'),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Resume'),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Social icons or copyright
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 12,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset('assets/logos/bxl-github.png', height: 24),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset('assets/logos/bxl-linkedin.png', height: 24),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Image.asset('assets/logos/Vector.png', height: 24),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Text(
             '© ${DateTime.now().year} Kaung Myat Kyaw. All rights reserved.',
             style: TextStyle(
