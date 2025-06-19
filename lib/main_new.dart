@@ -1192,7 +1192,7 @@ class _ContactFormState extends State<ContactFormSection> {
       }
     } catch (e) {
       log('EmailJS Exception: $e');
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Exception occurred: $e')),
         );
