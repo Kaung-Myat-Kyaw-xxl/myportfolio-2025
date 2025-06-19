@@ -231,7 +231,7 @@ class _AppBarButton extends StatelessWidget {
 // --- Portfolio Sections ---
 
 class _IntroSection extends StatelessWidget {
-  _IntroSection({super.key, required this.onContactPressed});
+  _IntroSection({required this.onContactPressed});
   final VoidCallback onContactPressed;
 
   final ValueNotifier<bool> _hovering = ValueNotifier(false);
@@ -386,9 +386,11 @@ class _IntroSection extends StatelessWidget {
       onPressed: () async {
         final url = Uri.parse('assets/resume/resume_2025.pdf');
         if (!await launchUrl(url)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not launch $url')),
-          );
+          if(context.mounted){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Could not launch $url')),
+            );
+          }
         }
         log('Opening Resume Link: $url');
       },
@@ -418,9 +420,11 @@ class _IntroSection extends StatelessWidget {
             final linkedInUrl = "https://www.linkedin.com/in/kaung-myat-kyaw-1b04641b5";
             final Uri url = Uri.parse(linkedInUrl);
             if (!await launchUrl(url)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch $linkedInUrl')),
-              );
+              if(context.mounted){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Could not launch $linkedInUrl')),
+                );
+              }
             }
             log('Opening Linkedin Link: $linkedInUrl');
           },
@@ -444,9 +448,11 @@ class _IntroSection extends StatelessWidget {
             final gitHubUrl = "https://github.com/Kaung-Myat-Kyaw-xxl";
             final Uri url = Uri.parse(gitHubUrl);
             if (!await launchUrl(url)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch $gitHubUrl')),
-              );
+              if(context.mounted){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Could not launch $gitHubUrl')),
+                );
+              }
             }
             log('Opening GitHub Link: $gitHubUrl');
           },
@@ -954,7 +960,7 @@ class _ProjectCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildProjectTechChips(context, (technologies as String).split(',').map((e) => e.trim()).toList(),),
+                          _buildProjectTechChips(context, convertStringToList(technologies)),
                           const SizedBox(height: 48),
                           _buildProjectButtons(context),
                         ],
@@ -1036,7 +1042,7 @@ class _ProjectCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildProjectTechChips(context, (technologies as String).split(',').map((e) => e.trim()).toList(),),
+                  _buildProjectTechChips(context, convertStringToList(technologies)),
                   const SizedBox(height: 30),
                   _buildProjectButtons(context),
                   const SizedBox(height: 50),
@@ -1060,9 +1066,11 @@ class _ProjectCard extends StatelessWidget {
 
             final Uri url = Uri.parse(liveLink);
             if (!await launchUrl(url)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch $liveLink')),
-              );
+              if(context.mounted){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Could not launch $liveLink')),
+                );
+              }
             }
             log('Opening Live Link: $liveLink');
           }
@@ -1116,6 +1124,15 @@ class _ProjectCard extends StatelessWidget {
     );
   }
 
+  List<String> convertStringToList(dynamic tech) {
+    if (tech is String) {
+      return tech.split(',').map((e) => e.trim()).toList();
+    } else if (tech is List<String>) {
+      return tech;
+    }
+    return []; // fallback if null or unexpected type
+  }
+
 }
 
 class ContactFormSection extends StatefulWidget {
@@ -1140,50 +1157,51 @@ class _ContactFormState extends State<ContactFormSection> {
     const publicKey = 'SlUlCt7tudL42vNcm';
 
     final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'service_id': serviceId,
-        'template_id': templateId,
-        'user_id': publicKey,
-        'template_params': {
-          'from_name': _nameController.text,
-          'from_email': _emailController.text,
-          'subject': _subjectController.text,
-          'message': _messageController.text,
-        },
-      }),
-    );
+    try{
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'service_id': serviceId,
+          'template_id': templateId,
+          'user_id': publicKey,
+          'template_params': {
+            'from_name': _nameController.text,
+            'from_email': _emailController.text,
+            'subject': _subjectController.text,
+            'message': _messageController.text,
+          },
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email sent successfully!')),
-      );
-      _formKey.currentState?.reset();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send email.')),
-      );
+      if (response.statusCode == 200) {
+        if(mounted){
+          log('Email sent response: ${response.statusCode}, ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Email sent successfully!')),
+          );
+        }
+        _formKey.currentState?.reset();
+      } else {
+        log('EmailJS Error: ${response.statusCode}, ${response.body}');
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to send email.')),
+          );
+        }
+      }
+    } catch (e) {
+      log('EmailJS Exception: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Exception occurred: $e')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final inputDecoration = InputDecoration(
-      filled: true,
-      fillColor: Colors.grey.shade900,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey), // default color
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: WebColors.primaryColor, width: 2), // color when focused
-      ),
-    );
-
     return LayoutBuilder(
       builder: (context, constraints){
         if(constraints.maxWidth > 700){
@@ -1233,106 +1251,7 @@ class _ContactFormState extends State<ContactFormSection> {
               ),
               Expanded(
                 flex: 1,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Name',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: inputDecoration,
-                        validator: (value) => value!.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      Text('Email',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: inputDecoration,
-                        validator: (value) => value!.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      Text('Subject',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _subjectController,
-                        decoration: inputDecoration,
-                      ),
-                      const SizedBox(height: 16),
-                      Text('Message',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          height: 1.6,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        controller: _messageController,
-                        decoration: inputDecoration,
-                        maxLines: 10,
-                        validator: (value) => value!.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: WebColors.primaryColor, // your light green color
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        onPressed: _isSending
-                            ? null
-                            : () async {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            setState(() => _isSending = true);
-                            await sendEmail();
-                            setState(() => _isSending = false);
-                          }
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                          child: Text('SUBMIT',
-                            style: TextStyle(
-                              fontFamily: 'ManropeBold',
-                              fontSize: 16,
-                              color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFF0A0A0A),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildContactForm(context),
               ),
             ],
           );
@@ -1375,110 +1294,126 @@ class _ContactFormState extends State<ContactFormSection> {
               const SizedBox(height: 40),
               _buildContactButtons(context),
               const SizedBox(height: 60,),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Name',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16,
-                        height: 1.6,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: inputDecoration,
-                      validator: (value) => value!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Email',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16,
-                        height: 1.6,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: inputDecoration,
-                      validator: (value) => value!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Subject',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16,
-                        height: 1.6,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      controller: _subjectController,
-                      decoration: inputDecoration,
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Message',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16,
-                        height: 1.6,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      controller: _messageController,
-                      decoration: inputDecoration,
-                      maxLines: 10,
-                      validator: (value) => value!.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: WebColors.primaryColor, // your light green color
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: _isSending
-                          ? null
-                          : () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          setState(() => _isSending = true);
-                          await sendEmail();
-                          setState(() => _isSending = false);
-                        }
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                        child: Text('SUBMIT',
-                          style: TextStyle(
-                            fontFamily: 'ManropeBold',
-                            fontSize: 16,
-                            color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFF0A0A0A),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildContactForm(context),
             ],
           );
         }
       }
+    );
+  }
+
+  Widget _buildContactForm(BuildContext context){
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: Colors.grey.shade900,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey), // default color
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: WebColors.primaryColor, width: 2), // color when focused
+      ),
+    );
+
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Name',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _nameController,
+            decoration: inputDecoration,
+            validator: (value) => value!.isEmpty ? 'Required' : null,
+          ),
+          const SizedBox(height: 16),
+          Text('Email',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _emailController,
+            decoration: inputDecoration,
+            validator: (value) => value!.isEmpty ? 'Required' : null,
+          ),
+          const SizedBox(height: 16),
+          Text('Subject',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _subjectController,
+            decoration: inputDecoration,
+          ),
+          const SizedBox(height: 16),
+          Text('Message',
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              height: 1.6,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _messageController,
+            decoration: inputDecoration,
+            maxLines: 10,
+            validator: (value) => value!.isEmpty ? 'Required' : null,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: WebColors.primaryColor, // your light green color
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: _isSending ? null : () async {
+              if (_formKey.currentState?.validate() ?? false) {
+                setState(() => _isSending = true);
+                await sendEmail();
+                setState(() => _isSending = false);
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+              child: _isSending ? CupertinoActivityIndicator() : Text('SUBMIT',
+                style: TextStyle(
+                  fontFamily: 'ManropeBold',
+                  fontSize: 16,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFF0A0A0A),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1490,7 +1425,7 @@ class _ContactFormState extends State<ContactFormSection> {
       },
       {
         'icon': 'assets/logos/bxl-linkedin.png',
-        'url': 'https://www.twitter.com/',
+        'url': 'https://www.x.com/',
       },
       {
         'icon': 'assets/logos/bxl-instagram.png',
@@ -1530,7 +1465,6 @@ class FooterSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
       width: double.infinity,
@@ -1541,7 +1475,7 @@ class FooterSection extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           Text(
-            '© ${DateTime.now().year} Kaung Myat Kyaw. All rights reserved.',
+            '© ${DateTime.now().year} Kaung Myat Kyaw',
             style: TextStyle(
               fontSize: 12,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
