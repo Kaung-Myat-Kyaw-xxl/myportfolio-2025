@@ -1,9 +1,10 @@
-// main.dart - The entry point for your Flutter portfolio application.
+// main_new.dart - The entry point for my Flutter portfolio application.
 
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
@@ -1223,28 +1224,13 @@ class _ContactFormState extends State<ContactFormSection> {
                       ),
                     ),
                     const SizedBox(height: 16,),
-                    Text(
-                      "Say hello at kaungmyatkyaw.xxl@gmail.com",
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 18,
-                        height: 1.5,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFFFFFFF),
-                      ),
-                    ),
+
+                    _buildRichText(context, constraints, 'Say hello at ', 'kaungmyatkyaw.xxl@gmail.com', true),
                     const SizedBox(height: 8,),
-                    Text(
-                      "For more info, here's my resume",
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 18,
-                        height: 1.5,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFFFFFFF),
-                      ),
-                    ),
+
+                    _buildRichText(context, constraints, 'For more info, here\'s my ', 'resume', false),
                     const SizedBox(height: 40),
+
                     _buildContactButtons(context)
                   ],
                 ),
@@ -1270,35 +1256,70 @@ class _ContactFormState extends State<ContactFormSection> {
                 ),
               ),
               const SizedBox(height: 16,),
-              Text(
-                "Say hello at kaungmyatkyaw.xxl@gmail.com",
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 16,
-                  height: 1.6,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                ),
-              ),
+
+              _buildRichText(context, constraints, 'Say hello at ', 'kaungmyatkyaw.xxl@gmail.com', true),
               const SizedBox(height: 8,),
-              Text(
-                "For more info, here's my resume",
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 16,
-                  height: 1.6,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.blueGrey[800] : Color(0xFFC7C7C7),
-                ),
-              ),
+
+              _buildRichText(context, constraints, 'For more info, here\'s my ', 'resume', false),
               const SizedBox(height: 40),
+
               _buildContactButtons(context),
               const SizedBox(height: 60,),
+
               _buildContactForm(context),
             ],
           );
         }
       }
+    );
+  }
+
+  Widget _buildRichText(BuildContext context, BoxConstraints constraints, String normalText, String linkText, bool isEmail){
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: constraints.maxWidth > 700 ? 18 : 16,
+          height: constraints.maxWidth > 700 ? 1.5 : 1.6,
+          fontWeight: FontWeight.w400,
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.blueGrey[800]
+              : Color(0xFFC7C7C7),
+        ),
+        children: [
+          TextSpan(text: normalText),
+          TextSpan(
+            text: linkText,
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: constraints.maxWidth > 700 ? 18 : 16,
+              height: constraints.maxWidth > 700 ? 1.5 : 1.6,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFFFFFFFF), // Link color
+              decoration: TextDecoration.underline,
+              decorationColor: WebColors.primaryColor, // 👈 underline color
+              decorationThickness: 2,           // 👈 thickness of the underline
+              decorationStyle: TextDecorationStyle.solid, // dashed/dotted/solid
+            ),
+            recognizer: TapGestureRecognizer()..onTap = () async {
+              late Uri uri;
+              if(isEmail){
+                uri = Uri(scheme: 'mailto', path: 'kaungmyatkyaw.xxl@gmail.com',);
+              }else{
+                uri = Uri.parse('assets/resume/resume_2025.pdf');
+              }
+
+                if (!await launchUrl(uri)) {
+                  if(context.mounted){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Could not launch link!')),
+                    );
+                  }
+                }
+              },
+          ),
+        ],
+      ),
     );
   }
 
