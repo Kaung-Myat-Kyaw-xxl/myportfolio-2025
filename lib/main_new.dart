@@ -369,12 +369,12 @@ class _IntroSection extends StatelessWidget {
         if (kIsWeb)   // Web only button
         const SizedBox(height: 40),
         if (kIsWeb)  // Web only button
-          _buildPDFViewButton(context),
+          _buildPDFViewButton(context, constraints),
       ],
     );
   }
 
-  Widget _buildPDFViewButton(BuildContext context){
+  Widget _buildPDFViewButton(BuildContext context, BoxConstraints constraints){
     return ElevatedButton.icon(
       icon: Icon(Icons.picture_as_pdf, color: Colors.white), // white icon
       label: Text(
@@ -400,7 +400,7 @@ class _IntroSection extends StatelessWidget {
         foregroundColor: WebColors.primaryColor, // ripple effect
         shadowColor: Colors.grey, // remove shadow
         side: BorderSide(color: WebColors.primaryColor, width: 1.5),
-        minimumSize: Size(187, 58),
+        minimumSize: Size(constraints.maxWidth > 700 ? 187 : 164, constraints.maxWidth > 700 ? 58 : 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(27),
         ),
