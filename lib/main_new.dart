@@ -35,6 +35,10 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey, // A good primary color for a professional look.
         visualDensity: VisualDensity.adaptivePlatformDensity, // Adapts UI density based on platform.
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF0D1B2A), // Replace with your desired color
+          elevation: 0,
+        ),
         //fontFamily: 'BebasNeue', // Using 'Inter' for a modern look (ensure you add it to pubspec.yaml).
       ),
       // Define the dark theme.
@@ -43,6 +47,10 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blueGrey,
         hintColor: Colors.tealAccent, // A contrasting accent color for dark theme.
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF0D1B2A), // Replace with your desired color
+          elevation: 0,
+        ),
         //fontFamily: 'BebasNeue',
       ),
       themeMode: ThemeMode.system,
