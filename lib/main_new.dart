@@ -252,7 +252,7 @@ class _IntroSection extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  'https://i.imgur.com/nMWsjPs.jpeg',
+                  'https://i.imgur.com/FM7agKE.jpeg',
                   width: 500,
                   height: 600,
                   fit: BoxFit.cover,
@@ -293,7 +293,7 @@ class _IntroSection extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  'https://i.imgur.com/nMWsjPs.jpeg',
+                  'https://i.imgur.com/FM7agKE.jpeg',
                   width: double.infinity,
                   height: 400,
                   fit: BoxFit.cover,
