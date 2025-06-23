@@ -12,8 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:kmk_portfolio/src/shared/webColors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'src/shared/circlesAnimation.dart';
-
 void main() {
   // Runs the Flutter application, starting with the MyApp widget.
   runApp(const MyApp());
@@ -138,69 +136,65 @@ class _PortfolioPageState extends State<PortfolioPage> {
         ],
       ),
       // SingleChildScrollView allows the content to be scrollable if it exceeds screen height.
-      body: Stack(
-        children: [
-          const CirclesBackground(),
-          Scrollbar(
-            controller: _scrollController,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Align(
-                alignment: Alignment.topCenter, // Center the content horizontally.
-                child: Container(
-                  // Max width for content to keep it readable on very wide screens.
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left).
-                    children: [
-                      // Intro Seciton
-                      _IntroSection(onContactPressed: (){ _scrollToSection(contactKey); }),
-                      _buildDivider(context),
+      body: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          //physics: const BouncingScrollPhysics(),
+          controller: _scrollController,
+          child: Align(
+            alignment: Alignment.topCenter, // Center the content horizontally.
+            child: Container(
+              // Max width for content to keep it readable on very wide screens.
+              constraints: const BoxConstraints(maxWidth: 1200),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left).
+                children: [
+                  // Intro Seciton
+                  _IntroSection(onContactPressed: (){ _scrollToSection(contactKey); }),
+                  _buildDivider(context),
 
-                      // Projects Section
-                      Container(
-                        key: projectsKey,
-                        child: _ProjectsSection(),
-                      ),
-                      _buildDivider(context),
-
-                      // Skills Section
-                      Container(
-                        key: skillsKey,
-                        child: _SkillsSection(),
-                      ),
-                      _buildDivider(context),
-
-                      // About Me Section
-                      Container(
-                        key: aboutKey,
-                        child: _AboutMeSection(),
-                      ),
-                      _buildDivider(context),
-
-                      // Contact Section
-                      Container(
-                        key: contactKey,
-                        child: ContactFormSection(),
-                      ),
-                      const SizedBox(height: 40,),
-                      Divider(
-                        color: Color(0xFF484848), // Line color
-                        thickness: 1,       // Line thickness
-                        height: 0,         // Space above and below the line
-                      ),
-
-                      // Footer Section
-                      FooterSection(),
-
-                    ],
+                  // Projects Section
+                  Container(
+                    key: projectsKey,
+                    child: _ProjectsSection(),
                   ),
-                ),
+                  _buildDivider(context),
+
+                  // Skills Section
+                  Container(
+                    key: skillsKey,
+                    child: _SkillsSection(),
+                  ),
+                  _buildDivider(context),
+
+                  // About Me Section
+                  Container(
+                    key: aboutKey,
+                    child: _AboutMeSection(),
+                  ),
+                  _buildDivider(context),
+
+                  // Contact Section
+                  Container(
+                    key: contactKey,
+                    child: ContactFormSection(),
+                  ),
+                  const SizedBox(height: 40,),
+                  Divider(
+                    color: Color(0xFF484848), // Line color
+                    thickness: 1,       // Line thickness
+                    height: 0,         // Space above and below the line
+                  ),
+
+                  // Footer Section
+                  FooterSection(),
+
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

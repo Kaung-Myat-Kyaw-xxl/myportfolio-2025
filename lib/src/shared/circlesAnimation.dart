@@ -99,6 +99,8 @@ class _CirclesBackgroundState extends State<CirclesBackground>
   /// Circle data defining properties for each circle
   final List<CircleData> _circles = [];
 
+  static double speedFactor = 2.0; // Set to 0.5 for faster, 2.0 for slower
+
   @override
   void initState() {
     super.initState();
@@ -115,9 +117,10 @@ class _CirclesBackgroundState extends State<CirclesBackground>
 
     // Create 8 animated circles with different properties
     for (int i = 0; i < 8; i++) {
+      final durationSeconds = (5 + i * 5) * speedFactor;
       // Create animation controller with staggered durations (5-40 seconds)
       final controller = AnimationController(
-        duration: Duration(seconds: 5 + i * 5),
+        duration: Duration(milliseconds: (durationSeconds * 1000).round()),    // speeds: 5s, 10s, ..., 40s
         vsync: this,
       );
 
@@ -168,3 +171,4 @@ class _CirclesBackgroundState extends State<CirclesBackground>
     );
   }
 }
+
